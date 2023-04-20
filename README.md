@@ -81,13 +81,12 @@ func main() {
 
 ## Contributing
 
-Thank you for your interest in contributing to our project! 
-We welcome contributions of all kinds, including bug reports, security issue, 
-feature suggestions, documentation improvements, and code contributions.
+Welcome, welcome! We're thrilled that you're interested in contributing to our project.
+We'll take contributions in any flavor - bug reports, security issues, feature suggestions, documentation improvements, and code contributions are all on the menu.
 
-### How to contribute
+### How to Contribute
 
-Feel free to contribute to this project by opening an issue or a pull request.
+Hungry to contribute? Just open an issue or pull request and let us know what's cookin'! We can't wait to see what you bring to the table.
 
 ## Contact
 
