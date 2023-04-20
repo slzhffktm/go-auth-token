@@ -1,2 +1,3 @@
-# go-auth-token
-Golang library to generate access &amp; refresh token in JWT format.
+# Go Auth Token
+
+Golang library to generate auth token in JWT format (Bearer), based on https://github.com/golang-jwt/jwt.
