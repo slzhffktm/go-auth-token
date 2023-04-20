@@ -78,3 +78,17 @@ func main() {
 	// Usage is the same as the symmetric SigningMethod.
 }
 ```
+
+## Contributing
+
+Thank you for your interest in contributing to our project! 
+We welcome contributions of all kinds, including bug reports, security issue, 
+feature suggestions, documentation improvements, and code contributions.
+
+### How to contribute
+
+Feel free to contribute to this project by opening an issue or a pull request.
+
+## Contact
+
+If you have any questions or concerns about contributing to our project, please reach out to us by email or on GitHub. We appreciate your interest and look forward to working with you!
