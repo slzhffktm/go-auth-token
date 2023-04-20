@@ -1,6 +1,6 @@
 # Go Auth Token
 
-Golang library to generate auth token in JWT-formatted (Bearer) authentication token.
+Golang library to simplify generating and parsing the JWT-formatted (Bearer) authentication token.
 This library is using https://github.com/golang-jwt/jwt.
 
 ## Goal
