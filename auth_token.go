@@ -18,7 +18,7 @@ type Options struct {
 	SigningMethod SigningMethod
 
 	// SecretKey is required for symmetric SigningMethod.
-	SecretKey string
+	SecretKey []byte
 
 	// PrivateKey is required for asymmetric SigningMethod.
 	PrivateKey any
@@ -33,11 +33,10 @@ type AuthToken[T any] struct {
 // New generates a new AuthToken instance.
 // T is the data type that wants to be inserted into the token.
 func New[T any](opts Options) (*AuthToken[T], error) {
-	if isSigningMethodSymmetric(opts.SigningMethod) {
-		if opts.SecretKey == "" {
-			return nil, errors.New("SecretKey is required for symmetric SigningMethod.")
-		}
-	} else {
+	if isSigningMethodSymmetric(opts.SigningMethod) && len(opts.SecretKey) == 0 {
+		return nil, errors.New("SecretKey is required for symmetric SigningMethod.")
+
+	} else if !isSigningMethodSymmetric(opts.SigningMethod) {
 		if opts.PrivateKey == "" || opts.PublicKey == "" {
 			return nil, errors.New("PrivateKey and PublicKey is required for asymmetric SigningMethod.")
 		}
@@ -63,6 +62,8 @@ func validatePrivatePublicKey(opts Options) error {
 		if !ok {
 			return ErrInvalidKeyType
 		}
+
+		return nil
 	case SigningMethodES256, SigningMethodES384, SigningMethodES512:
 		_, ok := opts.PrivateKey.(*ecdsa.PrivateKey)
 		if !ok {
@@ -72,6 +73,8 @@ func validatePrivatePublicKey(opts Options) error {
 		if !ok {
 			return ErrInvalidKeyType
 		}
+
+		return nil
 	case SigningMethodRS256, SigningMethodRS384, SigningMethodRS512:
 		_, ok := opts.PrivateKey.(*rsa.PrivateKey)
 		if !ok {
@@ -81,9 +84,11 @@ func validatePrivatePublicKey(opts Options) error {
 		if !ok {
 			return ErrInvalidKeyType
 		}
+
+		return nil
+	default:
+		return ErrInvalidSigningMethod
 	}
-	
-	return ErrInvalidSigningMethod
 }
 
 // GenerateToken generates a token with its expiry date.
@@ -104,7 +109,8 @@ func (a AuthToken[T]) GenerateToken(
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	})
-	tokenString, err := unsigned.SignedString([]byte(a.opts.SecretKey))
+
+	tokenString, err := unsigned.SignedString(a.getSigningKey())
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("token.SignedString: %w", err)
 	}
@@ -125,7 +131,7 @@ func (a AuthToken[T]) ParseToken(
 		if token.Method != a.opts.SigningMethod {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(a.opts.SecretKey), nil
+		return a.getParsingKey(), nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("jwt.ParseWithClaims: %w", err)
@@ -135,4 +141,20 @@ func (a AuthToken[T]) ParseToken(
 	}
 
 	return &claims.Data, nil
+}
+
+func (a AuthToken[T]) getSigningKey() any {
+	if isSigningMethodSymmetric(a.opts.SigningMethod) {
+		return a.opts.SecretKey
+	} else {
+		return a.opts.PrivateKey
+	}
+}
+
+func (a AuthToken[T]) getParsingKey() any {
+	if isSigningMethodSymmetric(a.opts.SigningMethod) {
+		return a.opts.SecretKey
+	} else {
+		return a.opts.PublicKey
+	}
 }
