@@ -24,7 +24,7 @@ type Data struct {
 }
 
 func main() {
-	// For symmetric SigningMethod.
+	// For symmetric SigningMethod, e.g. SigningMethodHS256.
 	authToken, err := authtoken.New[Data](authtoken.Options{
 		SecretKey:     []byte("steve-ao-key"),
 		SigningMethod: authtoken.SigningMethodHS256,
@@ -51,7 +51,7 @@ func main() {
 }
 ```
 
-For asymmetric SigningMethod, you need to provide PrivateKey and PublicKey instead of SecretKey.
+For asymmetric SigningMethod (e.g. SigningMethodEdDSA), you need to provide PrivateKey and PublicKey instead of SecretKey.
 
 ```go
 package main
