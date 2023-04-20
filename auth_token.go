@@ -33,22 +33,30 @@ type AuthToken[T any] struct {
 // New generates a new AuthToken instance.
 // T is the data type that wants to be inserted into the token.
 func New[T any](opts Options) (*AuthToken[T], error) {
-	if isSigningMethodSymmetric(opts.SigningMethod) && len(opts.SecretKey) == 0 {
-		return nil, errors.New("SecretKey is required for symmetric SigningMethod.")
-
-	} else if !isSigningMethodSymmetric(opts.SigningMethod) {
-		if opts.PrivateKey == "" || opts.PublicKey == "" {
-			return nil, errors.New("PrivateKey and PublicKey is required for asymmetric SigningMethod.")
-		}
-
-		if err := validatePrivatePublicKey(opts); err != nil {
-			return nil, err
-		}
+	if err := validateOptions(opts); err != nil {
+		return nil, err
 	}
 
 	return &AuthToken[T]{
 		opts: opts,
 	}, nil
+}
+
+func validateOptions(opts Options) error {
+	if isSigningMethodSymmetric(opts.SigningMethod) && len(opts.SecretKey) == 0 {
+		return errors.New("SecretKey is required for symmetric SigningMethod.")
+
+	} else if !isSigningMethodSymmetric(opts.SigningMethod) {
+		if opts.PrivateKey == nil || opts.PublicKey == nil {
+			return errors.New("PrivateKey and PublicKey are required for asymmetric SigningMethod.")
+		}
+
+		if err := validatePrivatePublicKey(opts); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func validatePrivatePublicKey(opts Options) error {
@@ -134,7 +142,10 @@ func (a AuthToken[T]) ParseToken(
 		return a.getParsingKey(), nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("jwt.ParseWithClaims: %w", err)
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ErrTokenExpired
+		}
+		return nil, ErrInvalidToken
 	}
 	if !jwtTokenObj.Valid {
 		return nil, ErrInvalidToken
