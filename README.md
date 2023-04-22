@@ -7,6 +7,14 @@ This library is using https://github.com/golang-jwt/jwt.
 
 The aim of this project is to simplify the generation and parsing of JWT tokens.
 
+## Installation
+
+Install the package by using this command.
+
+```sh
+go get github.com/slzhffktm/go-auth-token
+```
+
 ## Usage
 
 ```go
